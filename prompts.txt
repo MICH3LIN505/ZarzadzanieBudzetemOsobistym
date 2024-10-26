@@ -1,0 +1,6 @@
+//napisz program, który pozwoli prowadzić ewidencję wydatków gotówkowych
+//program powinien być podzielony na metody i pozwolić na:
+//ustalanie budżetu miesięcznego z możliwością późniejszej jej edycji, dodawanie wydatków, wyświetlanie ich sumy, wyświetlanie wszystkich wydatków z maksymalnie 24 ostatnich miesięcy
+//obliczanie średniej wydatków w ciągu miesiąca, na podstawie której program będzie w stanie oszacować, czy użytkownikowi wystarczy budżetu na dany miesiąc
+//oraz wyświetlanie wydatków z konkretnego miesiąca i roku
+//program powinien być zapisywany do pliku i wczytywany z pliku, a także posiadać zabezpieczenia przed wprowadzeniem błędnych danych
