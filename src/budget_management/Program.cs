@@ -1,4 +1,7 @@
-﻿namespace Domain.Entities;
+﻿using System.Collections.Specialized;
+using System.Transactions;
+
+namespace Domain.Entities;
 
 internal class Program
 {
@@ -6,16 +9,19 @@ internal class Program
     {
         void MainMenu()
         {
-            Console.WriteLine("1. Ustal budżet miesięczny");
-            Console.WriteLine("2. Zmień datę wypłaty");
             Console.WriteLine("X. Dodaj transakcję");
             Console.WriteLine("X. Wyświetl sumę wydatków / przychodów");
             Console.WriteLine("X. Wyświetl wszystkie transakcje z ostatnich 24 miesięcy");
             Console.WriteLine("X. Oblicz średnią wydatków w ciągu miesiąca");
             Console.WriteLine("X. Wyświetl wydatki z konkretnego miesiąca i roku");
-            Console.WriteLine("X. Zapisz do pliku");
-            Console.WriteLine("X. Wczytaj z pliku");
             Console.WriteLine("X. Wyjście");
+            Console.WriteLine("\nWybór: ");
+        }
+        void Settings()
+        {
+            Console.WriteLine("1. Ustal budżet miesięczny");
+            Console.WriteLine("2. Zmień datę wypłaty");
+            Console.WriteLine("3. Usuń plik zapisu");
         }
 
         void SetMonthBudget()
@@ -78,6 +84,7 @@ internal class Program
                     break;
                 case 2:
                     AddExpense();
+                    Transaction transaction = new(100, DateTime.Now, "Opis", "Kategoria", "Tytuł", "Typ");
                     break;
                 case 3:
                     DisplayTotalExpenses();
