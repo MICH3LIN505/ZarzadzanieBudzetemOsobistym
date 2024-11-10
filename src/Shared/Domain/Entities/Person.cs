@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Domain.Entities
 {
     public class Person
     {
         public required string Name { get; set; }
         public required string Surname { get; set; }
-        public string? Nickname { get; set; }
+        public string Payday { get; set; }
+        public decimal MonthBudget { get; set; }
 
-        public Person(string name, string surname, string nickname)
+        public Person(string name, string surname, string payday, decimal monthBudget)
         {
             Name = name;
             Surname = surname;
-            Nickname = nickname;
+            Payday = payday;
+            MonthBudget = monthBudget;
         }
     }
 }

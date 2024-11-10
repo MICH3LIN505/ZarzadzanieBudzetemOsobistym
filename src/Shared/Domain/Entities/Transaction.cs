@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Domain.Entities
 {
-    class Transaction
+    public class Transaction
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         public int Status { get; set; }
-        public string Description { get; set; }
+        public string Note { get; set; }
         public string Category { get; set; }
         public string Title { get; set; }
         public string Type { get; set; }
 
-        public Transaction(decimal amount, DateTime date, string description, string category, string title, string type)
+        public Transaction(string title, decimal amount, string note)
         {
-            Amount = amount;
-            Date = date;
-            Description = description;
-            Category = category;
+            Date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            Id = DateTime.Now.Year * 100000000 + DateTime.Now.Month * 1000000 + DateTime.Now.Day * DateTime.Now.Hour;
             Title = title;
-            Type = type;
+            Amount = amount;
+            Note = note;
         }
     }
 }
