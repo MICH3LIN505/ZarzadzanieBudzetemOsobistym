@@ -1,62 +1,96 @@
-﻿//metody do zarządzania transakcjami
+﻿//to jest plik odpowiedzialny za zarządzanie transakcjami
 
-namespace budget_management.Services;
 using Domain.Entities;
-using Messages;
+namespace budget_management.Services;
+
 public class TransactionManagement
 {
-    public void SetMonthBudget()
-    {
-        Console.WriteLine("Podaj nowy budżet miesięczny: ");
-        decimal budget = decimal.Parse(Console.ReadLine());
-        Console.WriteLine($"Nowy budżet wynosi: {budget}");
-        Console.WriteLine("Czy na pewno chcesz go ustawić? (T/N): ");
-        string choice = Console.ReadLine();
-        if (choice == "T")
-        {
-            using (StreamWriter writer = new StreamWriter(@"C:\Users\micha\Desktop\budget.txt"))
-            {
-                writer.WriteLine(budget);
-            }
-            Console.WriteLine($"Budżet został ustawiony na {budget}");
-        }
-        else
-        {
-            Console.WriteLine("Modyfikacja budżetu została anulowana");
-        }
-    }
+    private readonly FileManagement _fileManagement = new();
+
     public void AddTransaction()
     {
-        Console.WriteLine("Podaj kwotę wydatku:");
-        string title = Console.ReadLine();
+        Console.WriteLine("Podaj kwotę transakcji:");
+        decimal amount = decimal.Parse(Console.ReadLine());
+        Console.WriteLine("Opcjonalna notatka (wciśnij Enter, aby pominąć):");
+        string? note = Console.ReadLine();
+        Console.WriteLine("Podaj datę (RRRR-MM-DD):");
+        DateTime date = DateTime.Parse(Console.ReadLine());
 
-        decimal wydatek = decimal.Parse(Console.ReadLine());
-        string note = Console.ReadLine();
+        var transaction = new Transaction
+        {
+            Amount = amount,
+            Note = note,
+            Date = date
+        };
 
-        Transaction transaction = new(title, wydatek, note);
+        var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsPath) ?? new List<Transaction>();
+        transactions.Add(transaction);
+        _fileManagement.SaveToFile(FileManagement.TransactionsPath, transactions);
+
+        Console.WriteLine("Transakcja została dodana.");
     }
 
     public void DisplayTotalExpenses()
     {
-        Console.WriteLine("Suma wydatków wynosi: ");
-    }
+        var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsPath) ?? new List<Transaction>();
+        decimal total = 0;
 
-    public void DisplayAllExpenses()
-    {
-        Console.WriteLine("Wszystkie wydatki z ostatnich 24 miesięcy:");
+        foreach (var transaction in transactions)
+        {
+            total += transaction.Amount;
+        }
+
+        Console.WriteLine($"Całkowite wydatki: {total:C}");
     }
 
     public void CalculateAverageExpenses()
     {
-        Console.WriteLine("Średnia wydatków w ciągu miesiąca wynosi: ");
+        var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsPath) ?? new List<Transaction>();
+        if (transactions.Count == 0)
+        {
+            Console.WriteLine("Brak transakcji.");
+            return;
+        }
+
+        decimal total = 0;
+        foreach (var transaction in transactions)
+        {
+            total += transaction.Amount;
+        }
+
+        Console.WriteLine($"Średnie wydatki: {total / transactions.Count:C}");
     }
 
     public void DisplayExpensesSpecificMonthAndYear()
     {
-        Console.WriteLine("Podaj miesiąc:");
-        int miesiac = int.Parse(Console.ReadLine());
         Console.WriteLine("Podaj rok:");
-        int rok = int.Parse(Console.ReadLine());
-        Console.WriteLine($"Wydatki z miesiąca {miesiac} roku {rok}:");
+        int year = int.Parse(Console.ReadLine());
+        Console.WriteLine("Podaj miesiąc (1-12):");
+        int month = int.Parse(Console.ReadLine());
+
+        var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsPath) ?? new List<Transaction>();
+        decimal total = 0;
+
+        foreach (var transaction in transactions)
+        {
+            if (transaction.Date.Year == year && transaction.Date.Month == month)
+            {
+                total += transaction.Amount;
+            }
+        }
+
+        Console.WriteLine($"Wydatki z {month}/{year}: {total:C}");
+    }
+
+    public void SetMonthBudget()
+    {
+        Console.WriteLine("Podaj budżet miesięczny:");
+        decimal budget = decimal.Parse(Console.ReadLine());
+
+        var config = _fileManagement.ReadFromFile<Dictionary<string, object>>(FileManagement.ConfigPath) ?? new Dictionary<string, object>();
+        config["MonthBudget"] = budget;
+        _fileManagement.SaveToFile(FileManagement.ConfigPath, config);
+
+        Console.WriteLine("Budżet miesięczny został ustawiony.");
     }
 }

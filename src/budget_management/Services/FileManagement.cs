@@ -1,48 +1,66 @@
-﻿//funkcje służące do zarządzania plikami
+﻿// to jest plik odpowiadający za zarządzanie plikami zapisu danych
 
+using System.Text.Json;
 namespace budget_management.Services;
-using budget_management.Messages;
-using System.IO;
+
 public class FileManagement
 {
-    Info Info = new();
-    Error Error = new();
-    public void CreateNewFile()
-    {
-        string filePath = @"C:\Users\micha\Desktop\budget.txt";
+    public const string ConfigPath = @"C:\Users\micha\Desktop\experiment\config.json";
+    public const string TransactionsPath = @"C:\Users\micha\Desktop\experiment\transactions.json";
 
-        if (!File.Exists(filePath))
+    public void CreateFile()
+    {
+        try
         {
-            using (StreamWriter writer = File.CreateText(filePath))
+            // Tworzenie pliku config.json z domyślnymi wartościami
+            if (!File.Exists(ConfigPath))
             {
-                writer.WriteLine("This is the budget file. DO NOT modify it manually unless you know what you are doing!");
+                var defaultConfig = new { MonthBudget = 0, Payday = 1 };
+                string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(ConfigPath, configJson);
+                Console.WriteLine("Utworzono plik config.json z domyślnymi wartościami.");
             }
-            Info.FileCreated();
+            else
+            {
+                Console.WriteLine("Plik config.json już istnieje.");
+            }
+
+            // Tworzenie pustego pliku transactions.json
+            if (!File.Exists(TransactionsPath))
+            {
+                File.WriteAllText(TransactionsPath, "[]"); // Tworzy pustą listę w formacie JSON
+                Console.WriteLine("Utworzono plik transactions.json.");
+            }
+            else
+            {
+                Console.WriteLine("Plik transactions.json już istnieje.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Wystąpił błąd podczas tworzenia plików: {ex.Message}");
         }
     }
-    public void SaveToFile()
-    {
 
-        Info.FileSaved();
+    public void SaveToFile(string path, object data)
+    {
+        string jsonData = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(path, jsonData);
     }
 
-    public void ReadFromFile()
+    public T? ReadFromFile<T>(string path)
     {
+        if (!File.Exists(path))
+            return default;
 
-        Info.ReadFromFile();
+        string jsonData = File.ReadAllText(path);
+        return JsonSerializer.Deserialize<T>(jsonData);
     }
 
     public void DeleteFile()
     {
-        string fileName = "budget.txt";
-
-        if (File.Exists(fileName))
-        {
-            File.Delete(fileName);
-        }
-        else
-        {
-            Error.FileExists();
-        }
+        if (File.Exists(ConfigPath)) File.Delete(ConfigPath);
+        if (File.Exists(TransactionsPath)) File.Delete(TransactionsPath);
+        Console.WriteLine("Pliki zostały usunięte.");
     }
 }
