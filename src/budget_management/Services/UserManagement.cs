@@ -1,7 +1,5 @@
-﻿//to jest plik odpowiadający za zarządzanie danymi użytkowników
-
+﻿
 namespace budget_management.Services;
-
 public class UserManagement
 {
     private readonly FileManagement _fileManagement = new();

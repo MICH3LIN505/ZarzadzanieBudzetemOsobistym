@@ -1,5 +1,4 @@
-﻿//to jest plik odpowiedzialny za zarządzanie transakcjami
-
+﻿
 using Domain.Entities;
 namespace budget_management.Services;
 

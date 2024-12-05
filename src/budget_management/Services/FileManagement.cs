@@ -1,12 +1,11 @@
-﻿// to jest plik odpowiadający za zarządzanie plikami zapisu danych
-
+﻿
 using System.Text.Json;
 namespace budget_management.Services;
 
 public class FileManagement
 {
-    public const string ConfigPath = @"C:\Users\micha\Desktop\experiment\config.json";
-    public const string TransactionsPath = @"C:\Users\micha\Desktop\experiment\transactions.json";
+    public const string ConfigPath = @"C:\Users\micha\Desktop\ZarzadzanieBudzetem\config.json";
+    public const string TransactionsPath = @"C:\Users\micha\Desktop\ZarzadzanieBudzetem\transactions.json";
 
     public void CreateFile()
     {
@@ -15,7 +14,7 @@ public class FileManagement
             // Tworzenie pliku config.json z domyślnymi wartościami
             if (!File.Exists(ConfigPath))
             {
-                var defaultConfig = new { MonthBudget = 0, Payday = 1 };
+                var defaultConfig = new { MonthBudget = 0, Payday = 1, Sounds = 1 };
                 string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ConfigPath, configJson);
                 Console.WriteLine("Utworzono plik config.json z domyślnymi wartościami.");

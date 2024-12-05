@@ -1,8 +1,9 @@
-﻿namespace budget_management.Messages;
+﻿
+namespace budget_management.Messages;
 
-public class Display
+public static class Display
 {
-    public void Logo()
+    public static void Logo()
     {
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine("$$$$$$$$\\ $$$$$$$\\   $$$$$$\\  ");
@@ -15,7 +16,7 @@ public class Display
         Console.WriteLine("\\________|\\_______/  \\______/ - Zarządzanie Budżetem Osobistym");
         Console.ForegroundColor = ConsoleColor.White;
     }
-    public void MainMenu()
+    public static void MainMenu()
     {
         Console.Clear();
         Logo();
@@ -32,19 +33,17 @@ public class Display
         Console.Write("Wybierz opcję: ");
     }
 
-    public void Settings()
+    public static void Settings()
     {
         Console.Clear();
         Logo();
         Console.WriteLine();
         Console.WriteLine("=== Ustawienia ===");
         Console.WriteLine();
-        Console.WriteLine("1. Ustaw budżet miesięczny");
+        Console.WriteLine("1. Ustal budżet miesięczny");
         Console.WriteLine("2. Ustaw dzień wypłaty");
-        Console.WriteLine("3. Zapisz zmienne do pliku");
-        Console.WriteLine("4. Odczytaj zmienne z pliku");
-        Console.WriteLine("5. Usuń pliki");
-        Console.WriteLine("6. Powrót do menu głównego");
+        Console.WriteLine("3. Ustawienia dźwięku");
+        Console.WriteLine("4. Powrót do menu głównego");
         Console.WriteLine();
         Console.Write("Wybierz opcję: ");
     }
