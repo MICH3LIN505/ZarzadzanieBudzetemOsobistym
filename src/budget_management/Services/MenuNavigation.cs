@@ -1,10 +1,13 @@
 ﻿using budget_management.Messages;
+using budget_management.Sounds;
 namespace budget_management.Services;
 
 public interface IMenuAction
 {
     void Execute();
 }
+
+// FUNKCJE MENU GŁÓWNEGO
 
 public class AddTransactionAction : IMenuAction
 {
@@ -36,105 +39,45 @@ public class DisplayTotalExpensesAction : IMenuAction
     }
 }
 
-public class SettingsMenuAction : IMenuAction
+internal class CalculateAverageExpenses : IMenuAction
 {
-    private readonly SettingsMenuFactory _settingsMenuFactory;
+    protected readonly TransactionManagement _transactionManagement;
 
-    public SettingsMenuAction(SettingsMenuFactory settingsMenuFactory)
+    public CalculateAverageExpenses(TransactionManagement transactionManagement)
     {
-        _settingsMenuFactory = settingsMenuFactory;
+        _transactionManagement = transactionManagement;
     }
 
     public void Execute()
-    {
-        Console.Clear();
-        Display.Logo();
-        Console.WriteLine();
-        Console.WriteLine("=== Ustawienia ===");
-        Console.WriteLine();
-        Console.WriteLine("1. Ustaw budżet miesięczny");
-        Console.WriteLine("2. Ustaw dzień wypłaty");
-        Console.WriteLine("3. Powrót do głównego menu");
-        Console.WriteLine();
-        Console.Write("Wybierz opcję: ");
-
-        int settingsChoice;
-        while (!int.TryParse(Console.ReadLine(), out settingsChoice))
-        {
-            ErrorMessage.InvalidChoice();
-        }
-
-        if (settingsChoice == 3) return;
-
-        var action = _settingsMenuFactory.GetAction(settingsChoice);
-        action?.Execute();
-        ErrorMessage.InvalidChoice();
-    }
-}
-
-public class MenuActionFactory
-{
-    private readonly TransactionManagement _transactionManagement;
-    private readonly SettingsMenuFactory _settingsMenuFactory;
-
-    public MenuActionFactory(TransactionManagement transactionManagement, SettingsMenuFactory settingsMenuFactory)
-    {
-        _transactionManagement = transactionManagement;
-        _settingsMenuFactory = settingsMenuFactory;
-    }
-
-    public IMenuAction? GetAction(int choice)
-    {
-        return choice switch
-        {
-            1 => new AddTransactionAction(_transactionManagement),
-            2 => new DisplayTotalExpensesAction(_transactionManagement),
-            3 => new CalculateAverageExpenses(_transactionManagement),
-            4 => new DisplayExpensesSpecificMonthAndYear(_transactionManagement),
-            5 => new SettingsMenuAction(_settingsMenuFactory),
-            6 => new ExitProgramAction(),
-            _ => null
-        };
-    }
-}
-
-internal class CalculateAverageExpenses : DisplayTotalExpensesAction
-{
-    public CalculateAverageExpenses(TransactionManagement transactionManagement) : base(transactionManagement)
     {
         _transactionManagement.CalculateAverageExpenses();
     }
 }
 
-internal class DisplayExpensesSpecificMonthAndYear : CalculateAverageExpenses
+internal class DisplayExpensesSpecificMonthAndYear : IMenuAction
 {
-    public DisplayExpensesSpecificMonthAndYear(TransactionManagement transactionManagement) : base(transactionManagement)
+    protected readonly TransactionManagement _transactionManagement;
+
+    public DisplayExpensesSpecificMonthAndYear(TransactionManagement transactionManagement)
+    {
+        _transactionManagement = transactionManagement;
+    }
+
+    public void Execute()
     {
         _transactionManagement.DisplayExpensesSpecificMonthAndYear();
     }
 }
 
-public class SettingsMenuFactory
+public class ExitProgramAction : IMenuAction
 {
-    private readonly TransactionManagement _transactionManagement;
-    private readonly UserManagement _userManagement;
-
-    public SettingsMenuFactory(TransactionManagement transactionManagement, UserManagement userManagement)
+    public void Execute()
     {
-        _transactionManagement = transactionManagement;
-        _userManagement = userManagement;
-    }
-
-    public IMenuAction? GetAction(int choice)
-    {
-        return choice switch
-        {
-            1 => new SetMonthBudgetAction(_transactionManagement),
-            2 => new SetPaydayAction(_userManagement),
-            _ => null
-        };
+        FileManagement.ExitProcedure();
     }
 }
+
+// FUNKCJE USTAWIEŃ
 
 public class SetMonthBudgetAction : IMenuAction
 {
@@ -166,11 +109,112 @@ public class SetPaydayAction : IMenuAction
     }
 }
 
-public class ExitProgramAction : IMenuAction
+public sealed class SetSoundsAction : IMenuAction
 {
+    private readonly UserManagement _userManagement;
+
+    public SetSoundsAction(UserManagement userManagement)
+    {
+        _userManagement = userManagement;
+    }
+
     public void Execute()
     {
-        InfoMessage.Goodbye();
-        Environment.Exit(0);
+        _userManagement.SetSounds();
+    }
+}
+
+public sealed class DeleteFilesAction : IMenuAction
+{
+    private readonly FileManagement _fileManagement;
+
+    public DeleteFilesAction(FileManagement fileManagement)
+    {
+        _fileManagement = fileManagement;
+    }
+
+    public void Execute()
+    {
+        _fileManagement.DeleteFiles();
+    }
+}
+
+// MENU GŁÓWNE
+
+public class MenuActionFactory
+{
+    private readonly TransactionManagement _transactionManagement;
+    private readonly SettingsMenuFactory _settingsMenuFactory;
+
+    public MenuActionFactory(TransactionManagement transactionManagement, SettingsMenuFactory settingsMenuFactory)
+    {
+        _transactionManagement = transactionManagement;
+        _settingsMenuFactory = settingsMenuFactory;
+    }
+
+    public IMenuAction? GetAction(int choice)
+    {
+        return choice switch
+        {
+            1 => new AddTransactionAction(_transactionManagement),
+            2 => new DisplayTotalExpensesAction(_transactionManagement),
+            3 => new CalculateAverageExpenses(_transactionManagement),
+            4 => new DisplayExpensesSpecificMonthAndYear(_transactionManagement),
+            5 => new SettingsMenuAction(_settingsMenuFactory),
+            6 => new ExitProgramAction(),
+            _ => null
+        };
+    }
+}
+
+//MENU USTAWIEŃ
+public class SettingsMenuAction : IMenuAction
+{
+    private readonly SettingsMenuFactory _settingsMenuFactory;
+
+    public SettingsMenuAction(SettingsMenuFactory settingsMenuFactory)
+    {
+        _settingsMenuFactory = settingsMenuFactory;
+    }
+
+    public void Execute()
+    {
+        Display.Logo();
+        Display.Settings();
+
+        int settingsChoice;
+        while (!int.TryParse(Console.ReadLine(), out settingsChoice))
+        {
+            Message.Error(ErrorMessage.InvalidChoice());
+        }
+
+        if (settingsChoice == 5) return;
+
+        var action = _settingsMenuFactory.GetAction(settingsChoice);
+        action?.Execute();
+    }
+}
+
+public class SettingsMenuFactory
+{
+    private readonly TransactionManagement _transactionManagement;
+    private readonly UserManagement _userManagement;
+
+    public SettingsMenuFactory(TransactionManagement transactionManagement, UserManagement userManagement)
+    {
+        _transactionManagement = transactionManagement;
+        _userManagement = userManagement;
+    }
+
+    public IMenuAction? GetAction(int choice)
+    {
+        return choice switch
+        {
+            1 => new SetMonthBudgetAction(_transactionManagement),
+            2 => new SetPaydayAction(_userManagement),
+            3 => new SetSoundsAction(_userManagement),
+            4 => new DeleteFilesAction(new FileManagement()),
+            _ => null
+        };
     }
 }

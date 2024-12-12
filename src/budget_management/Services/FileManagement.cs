@@ -1,22 +1,25 @@
 ﻿
+using budget_management.Messages;
+using budget_management.Sounds;
 using System.Text.Json;
 namespace budget_management.Services;
 
 public class FileManagement
 {
-    public const string ConfigPath = @"C:\Users\micha\Desktop\ZarzadzanieBudzetem\config.json";
-    public const string TransactionsPath = @"C:\Users\micha\Desktop\ZarzadzanieBudzetem\transactions.json";
+    private static string ConfigDirectory => $@"C:\Users\{Environment.UserName}\Desktop\";
+    public static string ConfigFilePath => Path.Combine(ConfigDirectory, $"{Environment.UserName}_config.json");
+    public static string TransactionsFilePath => Path.Combine(ConfigDirectory, $"{Environment.UserName}_transactions.json");
 
     public void CreateFile()
     {
         try
         {
             // Tworzenie pliku config.json z domyślnymi wartościami
-            if (!File.Exists(ConfigPath))
+            if (!File.Exists(ConfigFilePath))
             {
-                var defaultConfig = new { MonthBudget = 0, Payday = 1, Sounds = 1 };
+                var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Payday = 1, Sounds = true };
                 string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(ConfigPath, configJson);
+                File.WriteAllText(ConfigFilePath, configJson);
                 Console.WriteLine("Utworzono plik config.json z domyślnymi wartościami.");
             }
             else
@@ -25,9 +28,9 @@ public class FileManagement
             }
 
             // Tworzenie pustego pliku transactions.json
-            if (!File.Exists(TransactionsPath))
+            if (!File.Exists(TransactionsFilePath))
             {
-                File.WriteAllText(TransactionsPath, "[]"); // Tworzy pustą listę w formacie JSON
+                File.WriteAllText(TransactionsFilePath, "[]");
                 Console.WriteLine("Utworzono plik transactions.json.");
             }
             else
@@ -49,17 +52,54 @@ public class FileManagement
 
     public T? ReadFromFile<T>(string path)
     {
-        if (!File.Exists(path))
-            return default;
-
         string jsonData = File.ReadAllText(path);
         return JsonSerializer.Deserialize<T>(jsonData);
     }
 
-    public void DeleteFile()
+    public void DeleteFiles()
     {
-        if (File.Exists(ConfigPath)) File.Delete(ConfigPath);
-        if (File.Exists(TransactionsPath)) File.Delete(TransactionsPath);
-        Console.WriteLine("Pliki zostały usunięte.");
+        Display.Logo();
+        Console.WriteLine();
+        Message.Warning(WarningMessage.DeleteFiles());
+        Console.WriteLine();
+        Console.Write("Wpisz TAK, aby potwierdzić, w przeciwnym razie operacja zostanie anulowana");
+        Console.WriteLine();
+        Console.Write("Potwierdzenie: ");
+
+        string deletionChoice;
+
+        deletionChoice = Console.ReadLine();
+        if (deletionChoice == "TAK")
+        {
+            File.Delete(ConfigFilePath);
+            File.Delete(TransactionsFilePath);
+
+            Console.WriteLine();
+            Message.Info(InfoMessage.FilesDeleted());
+        }
+        else
+        {
+            Console.WriteLine();
+            Message.Info(InfoMessage.OperationCancelled());
+        }
+    }
+
+    public static void ExitProcedure()
+    {
+        UserManagement userManagement = new();
+
+        Console.Clear();
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("Created by Michał Sidzina (and a pinch of ChatGPT)");
+        Console.WriteLine();
+        Console.WriteLine(InfoMessage.Goodbye());
+        Console.WriteLine();
+
+        Sound.GoodbyeSound();
+
+        Console.WriteLine(InfoMessage.PressAnyKey());
+        Console.ReadKey();
+        Environment.Exit(0);
     }
 }
