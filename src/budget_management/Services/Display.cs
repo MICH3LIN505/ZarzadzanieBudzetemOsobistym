@@ -17,6 +17,18 @@ public static class Display
         Console.WriteLine("\\________|\\_______/  \\______/ - Zarządzanie Budżetem Osobistym");
         Console.ForegroundColor = ConsoleColor.White;
     }
+    public static void LoginPanel()
+    {
+        Console.WriteLine();
+        Console.WriteLine("=== Panel logowania ===");
+        Console.WriteLine();
+        Console.WriteLine("1. Rejestracja");
+        Console.WriteLine("2. Logowanie");
+        Console.WriteLine("3. Zmiana hasła");
+        Console.WriteLine("4. Wyjście");
+        Console.WriteLine();
+        Console.Write("Wybierz opcję: ");
+    }
     public static void MainMenu()
     {
         Console.WriteLine();
@@ -27,7 +39,8 @@ public static class Display
         Console.WriteLine("3. Oblicz średnią");
         Console.WriteLine("4. Wyświetl wydatki za wybrany miesiąc");
         Console.WriteLine("5. Ustawienia");
-        Console.WriteLine("6. Wyjście");
+        Console.WriteLine("6. Wyloguj się");
+        Console.WriteLine("7. Wyjście");
         Console.WriteLine();
         Console.Write("Wybierz opcję: ");
     }
@@ -40,7 +53,9 @@ public static class Display
         Console.WriteLine("1. Ustal budżet miesięczny");
         Console.WriteLine("2. Ustaw dzień wypłaty");
         Console.WriteLine("3. Ustawienia dźwięku");
-        Console.WriteLine("4. Usuń pliki zapisu");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("4. Usuń profil użytkownika");
+        Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine("5. Powrót do menu głównego");
         Console.WriteLine();
         Console.Write("Wybierz opcję: ");

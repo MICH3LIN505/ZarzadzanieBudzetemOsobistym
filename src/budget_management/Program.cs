@@ -20,28 +20,66 @@ internal class Program
         //    int frequency;
         //    while (!int.TryParse(Console.ReadLine(), out frequency)) { }
 
-        //        Console.Beep(frequency, 250);
+        //    Console.Beep(frequency, 250);
         //}
 
-        fileManagement.CreateFile();
+        fileManagement.CreateUsersFile();
 
-        Display.Logo();
-        Sound.WelcomeSound();
+        int loginOption;
 
         while (true)
         {
-            Display.Logo();
-            Display.MainMenu();
-
-            int choice;
-
-            while (!int.TryParse(Console.ReadLine(), out choice))
+            while (userManagement.IsUserLoggedIn == false)
             {
-                Message.Error(ErrorMessage.InvalidChoice());
+                Console.Clear();
+                Display.LoginPanel();
+                loginOption = int.Parse(Console.ReadLine());
+
+                switch (loginOption)
+                {
+                    case 1:
+                        userManagement.RegisterUser();
+                        break;
+                    case 2:
+                        var user = userManagement.LoginUser();
+                        break;
+                    case 3:
+                        userManagement.ChangePassword();
+                        break;
+                    case 4:
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Message.Error(ErrorMessage.InvalidChoice());
+                        break;
+                }
             }
 
-            var action = menuActionFactory.GetAction(choice);
-            action?.Execute();
+            Display.Logo();
+            Sound.WelcomeSound();
+
+            while (userManagement.IsUserLoggedIn == true)
+            {
+                Display.Logo();
+                
+                Display.MainMenu();
+
+                int choice;
+
+                while (!int.TryParse(Console.ReadLine(), out choice))
+                {
+                    Message.Error(ErrorMessage.InvalidChoice());
+                }
+
+                var action = menuActionFactory.GetAction(choice);
+                action?.Execute();
+                
+                if (choice == 6)
+                {
+                    Sound.LogoutSound();
+                    userManagement.LogoutUser();
+                }
+            }
         }
     }
 }

@@ -7,27 +7,46 @@ namespace budget_management.Services;
 public class FileManagement
 {
     private static string ConfigDirectory => $@"C:\Users\{Environment.UserName}\Desktop\";
-    public static string ConfigFilePath => Path.Combine(ConfigDirectory, $"{Environment.UserName}_config.json");
-    public static string TransactionsFilePath => Path.Combine(ConfigDirectory, $"{Environment.UserName}_transactions.json");
+    public static string LoggedUserID { get; set; } = string.Empty;
+    public static string ConfigFilePath => Path.Combine(ConfigDirectory, $"{LoggedUserID}_config.json");
+    public static string TransactionsFilePath => Path.Combine(ConfigDirectory, $"{LoggedUserID}_transactions.json");
+    public static string UsersFilePath => Path.Combine(ConfigDirectory, "users.json");
 
-    public void CreateFile()
+    public void CreateUsersFile()
     {
         try
         {
-            // Tworzenie pliku config.json z domyślnymi wartościami
+            if (!File.Exists(UsersFilePath))
+            {
+                File.WriteAllText(UsersFilePath, "{}");
+                Console.WriteLine("Utworzono plik users.json.");
+            }
+            else
+            {
+                Console.WriteLine("Plik users.json już istnieje.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Wystąpił błąd podczas tworzenia plików: {ex.Message}");
+        }
+    }
+
+    public void CreatePersonalFiles()
+    {
+        try
+        {
             if (!File.Exists(ConfigFilePath))
             {
                 var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Payday = 1, Sounds = true };
                 string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ConfigFilePath, configJson);
-                Console.WriteLine("Utworzono plik config.json z domyślnymi wartościami.");
             }
             else
             {
                 Console.WriteLine("Plik config.json już istnieje.");
             }
 
-            // Tworzenie pustego pliku transactions.json
             if (!File.Exists(TransactionsFilePath))
             {
                 File.WriteAllText(TransactionsFilePath, "[]");
@@ -71,11 +90,11 @@ public class FileManagement
         deletionChoice = Console.ReadLine();
         if (deletionChoice == "TAK")
         {
-            File.Delete(ConfigFilePath);
-            File.Delete(TransactionsFilePath);
-
             Console.WriteLine();
-            Message.Info(InfoMessage.FilesDeleted());
+            Message.Info(InfoMessage.ProgramWillBeClosed());
+            InfoMessage.PressAnyKey();
+            Console.ReadKey();
+            ExitProcedure(true);
         }
         else
         {
@@ -84,10 +103,8 @@ public class FileManagement
         }
     }
 
-    public static void ExitProcedure()
+    public static void ExitProcedure(bool deletionRequest)
     {
-        UserManagement userManagement = new();
-
         Console.Clear();
         Display.Logo();
         Console.WriteLine();
@@ -100,6 +117,12 @@ public class FileManagement
 
         Console.WriteLine(InfoMessage.PressAnyKey());
         Console.ReadKey();
+
+        if (deletionRequest)
+        {
+            File.Delete(ConfigFilePath);
+            File.Delete(TransactionsFilePath);
+        }
         Environment.Exit(0);
     }
 }

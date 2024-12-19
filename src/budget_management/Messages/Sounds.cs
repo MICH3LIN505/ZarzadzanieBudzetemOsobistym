@@ -10,7 +10,7 @@ namespace budget_management.Sounds
             if(userManagement.GetSoundsSetting())
             {
                 Console.Beep(700, 250);
-                Console.Beep(1000, 60);
+                Console.Beep(700, 250);
             }
         }
         public static void SuccessSound()
@@ -51,6 +51,16 @@ namespace budget_management.Sounds
                 Console.Beep(600, 300);
                 Console.Beep(500, 250);
                 Console.Beep(600, 500);
+            }
+        }
+        public static void LogoutSound()
+        {
+            UserManagement userManagement = new();
+            if (userManagement.GetSoundsSetting())
+            {
+                Console.Beep(300, 250);
+                Console.Beep(300, 250);
+                Console.Beep(400, 500);
             }
         }
         public static void GoodbyeSound()

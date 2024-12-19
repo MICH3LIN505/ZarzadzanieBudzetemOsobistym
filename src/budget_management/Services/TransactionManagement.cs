@@ -8,14 +8,14 @@ public class TransactionManagement
 
     public void AddTransaction()
     {
-        Console.WriteLine("Podaj kwotę transakcji:");
+        Console.Write("Podaj kwotę transakcji: ");
         decimal amount = decimal.Parse(Console.ReadLine());
-        Console.WriteLine("Opcjonalna notatka (wciśnij Enter, aby pominąć):");
+        Console.Write("Opcjonalna notatka (wciśnij Enter, aby pominąć): ");
         string? note = Console.ReadLine();
-        Console.WriteLine("Podaj datę (RRRR-MM-DD):");
+        Console.Write("Podaj datę (RRRR-MM-DD): ");
         DateTime date = DateTime.Parse(Console.ReadLine());
 
-        var transaction = new Transaction
+        Transaction transaction = new()
         {
             Amount = amount,
             Note = note,
@@ -30,7 +30,7 @@ public class TransactionManagement
         System.Threading.Thread.Sleep(2000);
     }
 
-    public void DisplayTotalExpenses()
+    public void DisplayBalance()
     {
         var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsFilePath) ?? new List<Transaction>();
         decimal total = 0;

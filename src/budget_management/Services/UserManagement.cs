@@ -7,6 +7,204 @@ namespace budget_management.Services;
 public class UserManagement
 {
     private readonly FileManagement _fileManagement = new();
+    public bool IsUserLoggedIn => !string.IsNullOrEmpty(FileManagement.LoggedUserID);
+
+    public void RegisterUser()
+    {
+        string id = Guid.NewGuid().ToString().Substring(0, 6);
+
+        while (LoadUsers().ContainsKey(id))
+        {
+            id = Guid.NewGuid().ToString().Substring(0, 6);
+        }
+
+
+        Console.Write("Podaj nazwę wyświetlaną: ");
+        string name = Console.ReadLine();
+        //Console.Write("Podaj nazwisko: ");
+        //string surname = Console.ReadLine();
+        Console.Write("Podaj nazwę, której chcesz używać do logowania: ");
+        string nickname = Console.ReadLine();
+
+        while (LoadUsers().ContainsKey(nickname))
+        {
+            Console.WriteLine("Podana nazwa logowania jest już zajęta.");
+            Console.Write("Podaj inną nazwę: ");
+            nickname = Console.ReadLine();
+        }
+
+        Console.Write("Utwórz hasło: ");
+        string password = Console.ReadLine();
+        Console.Write("Podaj dzień wypłaty: ");
+        int payday = int.Parse(Console.ReadLine());
+        Console.Write("Podaj miesięczny budżet: ");
+        decimal monthBudget = decimal.Parse(Console.ReadLine());
+
+        FileManagement.LoggedUserID = id;
+        _fileManagement.CreatePersonalFiles();
+
+        var config = new Dictionary<string, object>
+        {
+            { "Currency", "PLN" },
+            { "MonthBudget", monthBudget },
+            { "Payday", payday },
+            { "Sounds", true }
+        };
+
+        _fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
+
+        var person = new Person(id, name, nickname);
+        var users = LoadUsers();
+
+        users[nickname] = new UserData
+        {
+            Person = person,
+            Password = password
+        };
+
+        SaveUsers(users);
+
+        FileManagement.LoggedUserID = string.Empty;
+        Console.WriteLine("Rejestracja zakończona pomyślnie!");
+    }
+
+    public Person LoginUser()
+    {
+        Console.Write("Podaj swój login: ");
+        string nickname = Console.ReadLine();
+        Console.Write("Podaj hasło: ");
+        string password = Console.ReadLine();
+
+        var users = LoadUsers();
+
+        if (users.TryGetValue(nickname, out UserData userData))
+        {
+            if (userData.Password == password)
+            {
+                Console.WriteLine("Logowanie zakończone sukcesem!");
+
+                FileManagement.LoggedUserID = userData.Person.ID;
+                Message.LoggedUserName = userData.Person.Name;
+
+                return userData.Person;
+            }
+            else
+            {
+                Console.WriteLine("Nieprawidłowe hasło.");
+                return null;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Użytkownik nie istnieje.");
+            return null;
+        }
+    }
+
+    public void LogoutUser()
+    {
+        FileManagement.LoggedUserID = string.Empty;
+        Console.WriteLine("Wylogowano użytkownika");
+    }
+
+    public void ChangePassword()
+    {
+        Console.Write("Podaj swoją nazwę logowania: ");
+        string name = Console.ReadLine();
+        Console.Write("Podaj obecne hasło: ");
+        string currentPassword = Console.ReadLine();
+
+        var users = LoadUsers();
+
+        if (users.TryGetValue(name, out UserData userData))
+        {
+            if (userData.Password == currentPassword)
+            {
+                Console.Write("Podaj nowe hasło: ");
+                string newPassword = Console.ReadLine();
+                userData.Password = newPassword;
+                SaveUsers(users);
+                Console.WriteLine("Hasło zostało zmienione.");
+            }
+            else
+            {
+                Console.WriteLine("Nieprawidłowe obecne hasło.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Użytkownik nie istnieje.");
+        }
+    }
+
+    public void DeleteUser()
+    {
+        //usuń wszystkie dane z user.json powiązane z konkretnym loginem
+        Console.WriteLine(
+            "Uwaga! Usunięcie konta spowoduje utratę wszystkich danych. Czy na pewno chcesz kontynuować? (tak/nie)");
+        string choice = Console.ReadLine().ToLower();
+
+        if (choice == "tak")
+        {
+            Console.Write("Podaj swoją nazwę logowania: ");
+            string name = Console.ReadLine();
+            Console.Write("Podaj swoje hasło: ");
+            string password = Console.ReadLine();
+
+            var users = LoadUsers();
+
+            if (users.TryGetValue(name, out UserData userData))
+            {
+                if (userData.Password == password)
+                {
+                    File.Delete(FileManagement.ConfigFilePath);
+                    File.Delete(FileManagement.TransactionsFilePath);
+                    users.Remove(name);
+                    SaveUsers(users);
+                    Console.WriteLine("Konto zostało usunięte.");
+                }
+                else
+                {
+                    Console.WriteLine("Nieprawidłowe hasło.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Użytkownik nie istnieje.");
+            }
+        }
+        else if (choice == "nie")
+        {
+            Console.WriteLine("Nie usunięto konta.");
+        }
+        else
+        {
+            Message.Error(ErrorMessage.InvalidChoice());
+        }
+    }
+
+    private Dictionary<string, UserData> LoadUsers()
+    {
+        if (!File.Exists(FileManagement.UsersFilePath))
+        {
+            return new Dictionary<string, UserData>();
+        }
+
+        string json = File.ReadAllText(FileManagement.UsersFilePath);
+        return JsonSerializer.Deserialize<Dictionary<string, UserData>>(json) ?? new Dictionary<string, UserData>();
+    }
+
+    private void SaveUsers(Dictionary<string, UserData> users)
+    {
+        string json = JsonSerializer.Serialize(users, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(FileManagement.UsersFilePath, json);
+    }
+
+    public class UserData
+    {
+        public Person Person { get; set; }
+        public string Password { get; set; }
+    }
 
     public void SetPayday()
     {
@@ -22,8 +220,11 @@ public class UserManagement
 
     public bool GetSoundsSetting()
     {
+        if (!File.Exists(FileManagement.ConfigFilePath))
+        {
+            return false;
+        }
         string jsonContent = File.ReadAllText(FileManagement.ConfigFilePath);
-
         Config config = JsonSerializer.Deserialize<Config>(jsonContent);
 
         return config.Sounds;

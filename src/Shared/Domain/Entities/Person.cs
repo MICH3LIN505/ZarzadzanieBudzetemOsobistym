@@ -3,17 +3,17 @@ namespace Domain.Entities
 {
     public class Person
     {
-        public required string Name { get; set; }
-        public required string Surname { get; set; }
-        public string Payday { get; set; }
-        public decimal MonthBudget { get; set; }
+        public string ID { get; set; }
+        public string Name { get; set; }
+        //public string Surname { get; set; }
+        public string Nickname { get; set; }
 
-        public Person(string name, string surname, string payday, decimal monthBudget)
+        public Person(string id, string name, string nickname)
         {
+            ID = id;
             Name = name;
-            Surname = surname;
-            Payday = payday;
-            MonthBudget = monthBudget;
+            //Surname = surname;
+            Nickname = nickname;
         }
     }
 }

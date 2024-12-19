@@ -1,5 +1,5 @@
-﻿using budget_management.Messages;
-using budget_management.Sounds;
+﻿
+using budget_management.Messages;
 namespace budget_management.Services;
 
 public interface IMenuAction
@@ -35,10 +35,9 @@ public class DisplayTotalExpensesAction : IMenuAction
 
     public void Execute()
     {
-        _transactionManagement.DisplayTotalExpenses();
+        _transactionManagement.DisplayBalance();
     }
 }
-
 internal class CalculateAverageExpenses : IMenuAction
 {
     protected readonly TransactionManagement _transactionManagement;
@@ -73,7 +72,7 @@ public class ExitProgramAction : IMenuAction
 {
     public void Execute()
     {
-        FileManagement.ExitProcedure();
+        FileManagement.ExitProcedure(false);
     }
 }
 
@@ -135,7 +134,8 @@ public sealed class DeleteFilesAction : IMenuAction
 
     public void Execute()
     {
-        _fileManagement.DeleteFiles();
+        UserManagement userManagement = new();
+        userManagement.DeleteUser();
     }
 }
 
@@ -161,7 +161,8 @@ public class MenuActionFactory
             3 => new CalculateAverageExpenses(_transactionManagement),
             4 => new DisplayExpensesSpecificMonthAndYear(_transactionManagement),
             5 => new SettingsMenuAction(_settingsMenuFactory),
-            6 => new ExitProgramAction(),
+
+            7 => new ExitProgramAction(),
             _ => null
         };
     }
