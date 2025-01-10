@@ -14,15 +14,6 @@ internal class Program
         SettingsMenuFactory settingsMenuFactory = new(transactionManagement, userManagement);
         MenuActionFactory menuActionFactory = new(transactionManagement, settingsMenuFactory);
 
-        //zajefajny tester do dźwięków
-        //while (true)
-        //{
-        //    int frequency;
-        //    while (!int.TryParse(Console.ReadLine(), out frequency)) { }
-
-        //    Console.Beep(frequency, 250);
-        //}
-
         fileManagement.CreateUsersFile();
 
         int loginOption;
@@ -31,8 +22,15 @@ internal class Program
         {
             while (userManagement.IsUserLoggedIn == false)
             {
-                Console.Clear();
+                Display.Logo(false);
+
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(InfoMessage.Welcome());
+                Console.ForegroundColor = ConsoleColor.White;
+
                 Display.LoginPanel();
+
                 loginOption = int.Parse(Console.ReadLine());
 
                 switch (loginOption)
@@ -47,7 +45,7 @@ internal class Program
                         userManagement.ChangePassword();
                         break;
                     case 4:
-                        Environment.Exit(0);
+                        fileManagement.ExitProcedure(false);
                         break;
                     default:
                         Message.Error(ErrorMessage.InvalidChoice());
@@ -56,12 +54,18 @@ internal class Program
             }
 
             Display.Logo();
+
             Sound.WelcomeSound();
 
             while (userManagement.IsUserLoggedIn == true)
             {
                 Display.Logo();
-                
+
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(InfoMessage.WelcomeUser(transactionManagement.DisplayBalance()));
+                Console.ForegroundColor = ConsoleColor.White;
+
                 Display.MainMenu();
 
                 int choice;
@@ -74,7 +78,7 @@ internal class Program
                 var action = menuActionFactory.GetAction(choice);
                 action?.Execute();
                 
-                if (choice == 6)
+                if (choice == 5)
                 {
                     Sound.LogoutSound();
                     userManagement.LogoutUser();

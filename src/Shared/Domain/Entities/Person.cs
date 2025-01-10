@@ -5,14 +5,12 @@ namespace Domain.Entities
     {
         public string ID { get; set; }
         public string Name { get; set; }
-        //public string Surname { get; set; }
         public string Nickname { get; set; }
 
         public Person(string id, string name, string nickname)
         {
             ID = id;
             Name = name;
-            //Surname = surname;
             Nickname = nickname;
         }
     }

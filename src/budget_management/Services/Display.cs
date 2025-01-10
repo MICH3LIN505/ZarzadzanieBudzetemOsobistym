@@ -3,10 +3,17 @@ namespace budget_management.Messages;
 
 public static class Display
 {
-    public static void Logo()
+    public static void Logo(bool Color = true)
     {
         Console.Clear();
-        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        if (Color)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
         Console.WriteLine("$$$$$$$$\\ $$$$$$$\\   $$$$$$\\  ");
         Console.WriteLine("\\____$$  |$$  __$$\\ $$  __$$\\ ");
         Console.WriteLine("    $$  / $$ |  $$ |$$ /  $$ |");
@@ -35,12 +42,11 @@ public static class Display
         Console.WriteLine("=== Menu główne ===");
         Console.WriteLine();
         Console.WriteLine("1. Dodaj transakcję");
-        Console.WriteLine("2. Wyświetl bilans");
-        Console.WriteLine("3. Oblicz średnią");
-        Console.WriteLine("4. Wyświetl wydatki za wybrany miesiąc");
-        Console.WriteLine("5. Ustawienia");
-        Console.WriteLine("6. Wyloguj się");
-        Console.WriteLine("7. Wyjście");
+        Console.WriteLine("2. Oblicz średnią");
+        Console.WriteLine("3. Wyświetl wydatki za wybrany miesiąc");
+        Console.WriteLine("4. Ustawienia");
+        Console.WriteLine("5. Wyloguj się");
+        Console.WriteLine("6. Wyjście");
         Console.WriteLine();
         Console.Write("Wybierz opcję: ");
     }

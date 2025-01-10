@@ -72,7 +72,8 @@ public class ExitProgramAction : IMenuAction
 {
     public void Execute()
     {
-        FileManagement.ExitProcedure(false);
+        FileManagement fileManagement = new();
+        fileManagement.ExitProcedure();
     }
 }
 
@@ -157,12 +158,11 @@ public class MenuActionFactory
         return choice switch
         {
             1 => new AddTransactionAction(_transactionManagement),
-            2 => new DisplayTotalExpensesAction(_transactionManagement),
-            3 => new CalculateAverageExpenses(_transactionManagement),
-            4 => new DisplayExpensesSpecificMonthAndYear(_transactionManagement),
-            5 => new SettingsMenuAction(_settingsMenuFactory),
-
-            7 => new ExitProgramAction(),
+            2 => new CalculateAverageExpenses(_transactionManagement),
+            3 => new DisplayExpensesSpecificMonthAndYear(_transactionManagement),
+            4 => new SettingsMenuAction(_settingsMenuFactory),
+            // brakujący numer znajduje się w Program.cs
+            6 => new ExitProgramAction(),
             _ => null
         };
     }

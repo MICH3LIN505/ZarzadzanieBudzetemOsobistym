@@ -21,8 +21,6 @@ public class UserManagement
 
         Console.Write("Podaj nazwę wyświetlaną: ");
         string name = Console.ReadLine();
-        //Console.Write("Podaj nazwisko: ");
-        //string surname = Console.ReadLine();
         Console.Write("Podaj nazwę, której chcesz używać do logowania: ");
         string nickname = Console.ReadLine();
 
@@ -77,26 +75,18 @@ public class UserManagement
 
         var users = LoadUsers();
 
-        if (users.TryGetValue(nickname, out UserData userData))
+        if (users.TryGetValue(nickname, out UserData userData) && userData.Password == password)
         {
-            if (userData.Password == password)
-            {
-                Console.WriteLine("Logowanie zakończone sukcesem!");
+            Message.Info(InfoMessage.LoginSuccesfull());
 
-                FileManagement.LoggedUserID = userData.Person.ID;
-                Message.LoggedUserName = userData.Person.Name;
+            FileManagement.LoggedUserID = userData.Person.ID;
+            Message.LoggedUserName = userData.Person.Name;
 
-                return userData.Person;
-            }
-            else
-            {
-                Console.WriteLine("Nieprawidłowe hasło.");
-                return null;
-            }
+            return userData.Person;
         }
         else
         {
-            Console.WriteLine("Użytkownik nie istnieje.");
+            Message.Error(ErrorMessage.LoginFail());
             return null;
         }
     }
@@ -123,6 +113,12 @@ public class UserManagement
                 Console.Write("Podaj nowe hasło: ");
                 string newPassword = Console.ReadLine();
                 userData.Password = newPassword;
+                while (currentPassword == newPassword)
+                {
+                    Message.Warning(WarningMessage.SamePassword());
+                    Console.Write("Podaj nowe hasło: ");
+                    newPassword = Console.ReadLine();
+                }
                 SaveUsers(users);
                 Console.WriteLine("Hasło zostało zmienione.");
             }
@@ -139,47 +135,48 @@ public class UserManagement
 
     public void DeleteUser()
     {
-        //usuń wszystkie dane z user.json powiązane z konkretnym loginem
-        Console.WriteLine(
-            "Uwaga! Usunięcie konta spowoduje utratę wszystkich danych. Czy na pewno chcesz kontynuować? (tak/nie)");
-        string choice = Console.ReadLine().ToLower();
+        Display.Logo();
+        Console.WriteLine();
+        Message.Warning(WarningMessage.DeleteFiles());
+        Console.WriteLine();
+        Console.Write("Wpisz TAK, aby potwierdzić, w przeciwnym razie operacja zostanie anulowana");
+        Console.WriteLine();
+        Console.Write("Potwierdzenie: ");
 
-        if (choice == "tak")
+        string choice = Console.ReadLine();
+
+        switch (choice)
         {
-            Console.Write("Podaj swoją nazwę logowania: ");
-            string name = Console.ReadLine();
-            Console.Write("Podaj swoje hasło: ");
-            string password = Console.ReadLine();
+            case "TAK":
+                Console.Write("Podaj swoją nazwę logowania: ");
+                string name = Console.ReadLine();
+                Console.Write("Podaj swoje hasło: ");
+                string password = Console.ReadLine();
 
-            var users = LoadUsers();
+                var users = LoadUsers();
 
-            if (users.TryGetValue(name, out UserData userData))
-            {
-                if (userData.Password == password)
+                if (users.TryGetValue(name, out UserData userData) && userData.Password == password)
                 {
                     File.Delete(FileManagement.ConfigFilePath);
                     File.Delete(FileManagement.TransactionsFilePath);
                     users.Remove(name);
                     SaveUsers(users);
+
+                    FileManagement.LoggedUserID = string.Empty;
+
                     Console.WriteLine("Konto zostało usunięte.");
                 }
                 else
                 {
-                    Console.WriteLine("Nieprawidłowe hasło.");
+                    Console.WriteLine("Nieprawidłowe dane.");
+                    Message.Info("Nie usunięto konta.");
                 }
-            }
-            else
-            {
-                Console.WriteLine("Użytkownik nie istnieje.");
-            }
-        }
-        else if (choice == "nie")
-        {
-            Console.WriteLine("Nie usunięto konta.");
-        }
-        else
-        {
-            Message.Error(ErrorMessage.InvalidChoice());
+
+                break;
+
+            default:
+                Message.Info("Nie usunięto konta.");
+                break;
         }
     }
 

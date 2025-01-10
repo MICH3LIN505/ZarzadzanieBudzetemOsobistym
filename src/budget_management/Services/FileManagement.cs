@@ -14,52 +14,25 @@ public class FileManagement
 
     public void CreateUsersFile()
     {
-        try
+        if (!File.Exists(UsersFilePath))
         {
-            if (!File.Exists(UsersFilePath))
-            {
-                File.WriteAllText(UsersFilePath, "{}");
-                Console.WriteLine("Utworzono plik users.json.");
-            }
-            else
-            {
-                Console.WriteLine("Plik users.json już istnieje.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Wystąpił błąd podczas tworzenia plików: {ex.Message}");
+            File.WriteAllText(UsersFilePath, "{}");
+            Console.WriteLine("Utworzono plik users.json.");
         }
     }
 
     public void CreatePersonalFiles()
     {
-        try
+        if (!File.Exists(ConfigFilePath))
         {
-            if (!File.Exists(ConfigFilePath))
-            {
-                var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Payday = 1, Sounds = true };
-                string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(ConfigFilePath, configJson);
-            }
-            else
-            {
-                Console.WriteLine("Plik config.json już istnieje.");
-            }
-
-            if (!File.Exists(TransactionsFilePath))
-            {
-                File.WriteAllText(TransactionsFilePath, "[]");
-                Console.WriteLine("Utworzono plik transactions.json.");
-            }
-            else
-            {
-                Console.WriteLine("Plik transactions.json już istnieje.");
-            }
+            var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Payday = 1, Sounds = true };
+            string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(ConfigFilePath, configJson);
         }
-        catch (Exception ex)
+
+        if (!File.Exists(TransactionsFilePath))
         {
-            Console.WriteLine($"Wystąpił błąd podczas tworzenia plików: {ex.Message}");
+            File.WriteAllText(TransactionsFilePath, "[]");
         }
     }
 
@@ -75,40 +48,12 @@ public class FileManagement
         return JsonSerializer.Deserialize<T>(jsonData);
     }
 
-    public void DeleteFiles()
-    {
-        Display.Logo();
-        Console.WriteLine();
-        Message.Warning(WarningMessage.DeleteFiles());
-        Console.WriteLine();
-        Console.Write("Wpisz TAK, aby potwierdzić, w przeciwnym razie operacja zostanie anulowana");
-        Console.WriteLine();
-        Console.Write("Potwierdzenie: ");
-
-        string deletionChoice;
-
-        deletionChoice = Console.ReadLine();
-        if (deletionChoice == "TAK")
-        {
-            Console.WriteLine();
-            Message.Info(InfoMessage.ProgramWillBeClosed());
-            InfoMessage.PressAnyKey();
-            Console.ReadKey();
-            ExitProcedure(true);
-        }
-        else
-        {
-            Console.WriteLine();
-            Message.Info(InfoMessage.OperationCancelled());
-        }
-    }
-
-    public static void ExitProcedure(bool deletionRequest)
+    public void ExitProcedure(bool LogoColor = true)
     {
         Console.Clear();
-        Display.Logo();
+        Display.Logo(LogoColor);
         Console.WriteLine();
-        Console.WriteLine("Created by Michał Sidzina (and a pinch of ChatGPT)");
+        Console.WriteLine(InfoMessage.Credits());
         Console.WriteLine();
         Console.WriteLine(InfoMessage.Goodbye());
         Console.WriteLine();
@@ -118,11 +63,6 @@ public class FileManagement
         Console.WriteLine(InfoMessage.PressAnyKey());
         Console.ReadKey();
 
-        if (deletionRequest)
-        {
-            File.Delete(ConfigFilePath);
-            File.Delete(TransactionsFilePath);
-        }
         Environment.Exit(0);
     }
 }

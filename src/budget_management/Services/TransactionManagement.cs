@@ -1,5 +1,7 @@
 ﻿
+using budget_management.Messages;
 using Domain.Entities;
+using System.Globalization;
 namespace budget_management.Services;
 
 public class TransactionManagement
@@ -30,37 +32,73 @@ public class TransactionManagement
         System.Threading.Thread.Sleep(2000);
     }
 
-    public void DisplayBalance()
+    public decimal DisplayBalance()
     {
-        var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsFilePath) ?? new List<Transaction>();
-        decimal total = 0;
+        var config = _fileManagement.ReadFromFile<Config>(FileManagement.ConfigFilePath);
+        decimal budget = config.MonthBudget;
 
-        foreach (var transaction in transactions)
+        DateTime currentDate = DateTime.Now;
+        DateTime lastPayday;
+
+        if (currentDate.Day >= config.Payday)
         {
-            total += transaction.Amount;
+            lastPayday = new DateTime(currentDate.Year, currentDate.Month, config.Payday);
+        }
+        else
+        {
+            int previousMonth = currentDate.Month - 1;
+            int previousYear = currentDate.Year;
+            if (previousMonth == 0)
+            {
+                previousMonth = 12;
+                previousYear--;
+            }
+
+            int daysInPreviousMonth = DateTime.DaysInMonth(previousYear, previousMonth);
+            lastPayday = new DateTime(previousYear, previousMonth, Math.Min(config.Payday, daysInPreviousMonth));
         }
 
-        Console.WriteLine($"Całkowity bilans wynosi {total:C}");
-        System.Threading.Thread.Sleep(2000);
+        int monthsElapsed = ((currentDate.Year - lastPayday.Year) * 12) + currentDate.Month - lastPayday.Month;
+        if (currentDate.Day < config.Payday) monthsElapsed--;
+
+        decimal updatedBudget = budget + (monthsElapsed * budget);
+        
+        return updatedBudget;
     }
 
     public void CalculateAverageExpenses()
     {
-        var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsFilePath) ?? [];
-        if (transactions.Count == 0)
+        Console.Write("Podaj rok: ");
+        int year = int.Parse(Console.ReadLine());
+
+        Console.Write("Podaj miesiąc (1-12): ");
+        int month = int.Parse(Console.ReadLine());
+
+        var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsFilePath);
+
+        var filteredTransactions = transactions.Where(t => t.Date.Year == year && t.Date.Month == month).ToList();
+
+        if (filteredTransactions.Count == 0)
         {
-            Console.WriteLine("Brak transakcji.");
+            Console.WriteLine("Brak transakcji w wybranym miesiącu.");
             return;
         }
 
-        decimal total = 0;
-        foreach (var transaction in transactions)
-        {
-            total += transaction.Amount;
-        }
+        var expenses = filteredTransactions.Where(t => t.Amount < 0).ToList();
+        var incomes = filteredTransactions.Where(t => t.Amount > 0).ToList();
 
-        Console.WriteLine($"Średnie wydatki: {total / transactions.Count:C}");
-        System.Threading.Thread.Sleep(2000);
+        decimal totalExpenses = expenses.Sum(t => t.Amount);
+        decimal totalIncomes = incomes.Sum(t => t.Amount);
+
+        decimal averageExpenses = expenses.Count > 0 ? totalExpenses / expenses.Count : 0;
+        decimal averageIncomes = incomes.Count > 0 ? totalIncomes / incomes.Count : 0;
+
+        Console.WriteLine($"Średnie wydatki za {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)} {year}: {Math.Abs(averageExpenses):C}");
+        Console.WriteLine($"Średnie przychody za {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)} {year}: {averageIncomes:C}");
+
+        Console.WriteLine();
+        Console.WriteLine(InfoMessage.PressAnyKey());
+        Console.ReadKey();
     }
 
     public void DisplayExpensesSpecificMonthAndYear()
