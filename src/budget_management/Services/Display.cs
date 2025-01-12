@@ -29,10 +29,9 @@ public static class Display
         Console.WriteLine();
         Console.WriteLine("=== Panel logowania ===");
         Console.WriteLine();
-        Console.WriteLine("1. Rejestracja");
-        Console.WriteLine("2. Logowanie");
-        Console.WriteLine("3. Zmiana hasła");
-        Console.WriteLine("4. Wyjście");
+        Console.WriteLine("1. Logowanie");
+        Console.WriteLine("2. Rejestracja");
+        Console.WriteLine("3. Wyjście");
         Console.WriteLine();
         Console.Write("Wybierz opcję: ");
     }
@@ -43,7 +42,7 @@ public static class Display
         Console.WriteLine();
         Console.WriteLine("1. Dodaj transakcję");
         Console.WriteLine("2. Oblicz średnią");
-        Console.WriteLine("3. Wyświetl wydatki za wybrany miesiąc");
+        Console.WriteLine("3. Wyświetl transakcje");
         Console.WriteLine("4. Ustawienia");
         Console.WriteLine("5. Wyloguj się");
         Console.WriteLine("6. Wyjście");
@@ -59,10 +58,11 @@ public static class Display
         Console.WriteLine("1. Ustal budżet miesięczny");
         Console.WriteLine("2. Ustaw dzień wypłaty");
         Console.WriteLine("3. Ustawienia dźwięku");
+        Console.WriteLine("4. Zmień hasło");
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("4. Usuń profil użytkownika");
+        Console.WriteLine("5. Usuń profil użytkownika");
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("5. Powrót do menu głównego");
+        Console.WriteLine("6. Powrót do menu głównego");
         Console.WriteLine();
         Console.Write("Wybierz opcję: ");
     }

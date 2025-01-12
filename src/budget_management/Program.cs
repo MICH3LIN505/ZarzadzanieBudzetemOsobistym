@@ -2,6 +2,7 @@
 using budget_management.Services;
 using budget_management.Messages;
 using budget_management.Sounds;
+using budget_management.Factories;
 
 internal class Program
 {
@@ -36,15 +37,12 @@ internal class Program
                 switch (loginOption)
                 {
                     case 1:
-                        userManagement.RegisterUser();
-                        break;
-                    case 2:
                         var user = userManagement.LoginUser();
                         break;
-                    case 3:
-                        userManagement.ChangePassword();
+                    case 2:
+                        userManagement.RegisterUser();
                         break;
-                    case 4:
+                    case 3:
                         fileManagement.ExitProcedure(false);
                         break;
                     default:
@@ -54,7 +52,6 @@ internal class Program
             }
 
             Display.Logo();
-
             Sound.WelcomeSound();
 
             while (userManagement.IsUserLoggedIn == true)
