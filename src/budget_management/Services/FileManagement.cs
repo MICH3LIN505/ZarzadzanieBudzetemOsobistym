@@ -25,7 +25,8 @@ public class FileManagement
     {
         if (!File.Exists(ConfigFilePath))
         {
-            var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Payday = 1, Sounds = true };
+            //var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Payday = 1, Sounds = true };
+            var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Sounds = true };
             string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(ConfigFilePath, configJson);
         }

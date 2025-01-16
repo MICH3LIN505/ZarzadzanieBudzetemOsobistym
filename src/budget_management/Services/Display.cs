@@ -56,7 +56,7 @@ public static class Display
         Console.WriteLine("=== Ustawienia ===");
         Console.WriteLine();
         Console.WriteLine("1. Ustal budżet miesięczny");
-        Console.WriteLine("2. Ustaw dzień wypłaty");
+        Console.WriteLine("2. Zmień nazwę wyświetlaną");
         Console.WriteLine("3. Ustawienia dźwięku");
         Console.WriteLine("4. Zmień hasło");
         Console.ForegroundColor = ConsoleColor.Red;

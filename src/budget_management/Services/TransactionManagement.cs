@@ -10,6 +10,10 @@ public class TransactionManagement
 
     public void AddTransaction()
     {
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Dodawanie transakcji ===");
+        Console.WriteLine();
         Console.Write("Podaj kwotę transakcji: ");
         decimal amount = decimal.Parse(Console.ReadLine());
         Console.Write("Opcjonalna notatka (wciśnij Enter, aby pominąć): ");
@@ -28,46 +32,31 @@ public class TransactionManagement
         transactions.Add(transaction);
         _fileManagement.SaveToFile(FileManagement.TransactionsFilePath, transactions);
 
-        Console.WriteLine("Transakcja została dodana.");
-        System.Threading.Thread.Sleep(2000);
+        Message.Info("Transakcja została dodana.");
     }
 
     public decimal DisplayBalance()
     {
         var config = _fileManagement.ReadFromFile<Config>(FileManagement.ConfigFilePath);
-        decimal budget = config.MonthBudget;
 
-        DateTime currentDate = DateTime.Now;
-        DateTime lastPayday;
+        decimal monthBudget = config.MonthBudget;
+        decimal currentBudget = 0;
+        int month = DateTime.Now.Month;
 
-        if (currentDate.Day >= config.Payday)
-        {
-            lastPayday = new DateTime(currentDate.Year, currentDate.Month, config.Payday);
-        }
-        else
-        {
-            int previousMonth = currentDate.Month - 1;
-            int previousYear = currentDate.Year;
-            if (previousMonth == 0)
-            {
-                previousMonth = 12;
-                previousYear--;
-            }
+        var transactions = _fileManagement.ReadFromFile < List < Transaction >>(FileManagement.TransactionsFilePath) ?? new List<Transaction>();
+        var currentMonthTransactions = transactions.Where(t => t.Date.Month == month).ToList();
 
-            int daysInPreviousMonth = DateTime.DaysInMonth(previousYear, previousMonth);
-            lastPayday = new DateTime(previousYear, previousMonth, Math.Min(config.Payday, daysInPreviousMonth));
-        }
+        currentBudget = monthBudget - currentMonthTransactions.Sum(t => t.Amount);
 
-        int monthsElapsed = ((currentDate.Year - lastPayday.Year) * 12) + currentDate.Month - lastPayday.Month;
-        if (currentDate.Day < config.Payday) monthsElapsed--;
-
-        decimal updatedBudget = budget + (monthsElapsed * budget);
-        
-        return updatedBudget;
+        return currentBudget;
     }
 
     public void CalculateAverageExpenses()
     {
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Obliczanie średniej ===");
+        Console.WriteLine();
         Console.Write("Podaj rok: ");
         int year = int.Parse(Console.ReadLine());
 
@@ -81,6 +70,9 @@ public class TransactionManagement
         if (filteredTransactions.Count == 0)
         {
             Console.WriteLine("Brak transakcji w wybranym miesiącu.");
+            Console.WriteLine();
+            Console.WriteLine(InfoMessage.PressAnyKey());
+            Console.ReadKey();
             return;
         }
 
@@ -93,8 +85,14 @@ public class TransactionManagement
         decimal averageExpenses = expenses.Count > 0 ? totalExpenses / expenses.Count : 0;
         decimal averageIncomes = incomes.Count > 0 ? totalIncomes / incomes.Count : 0;
 
-        Console.WriteLine($"Średnie wydatki za {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)} {year}: {Math.Abs(averageExpenses):C}");
-        Console.WriteLine($"Średnie przychody za {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)} {year}: {averageIncomes:C}");
+        Console.Write($"Średnie wydatki za {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)} {year}: ");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"{Math.Abs(averageExpenses):C}");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write($"Średnie przychody za {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)} {year}: ");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"{averageIncomes:C}");
+        Console.ForegroundColor = ConsoleColor.White;
 
         Console.WriteLine();
         Console.WriteLine(InfoMessage.PressAnyKey());
@@ -103,10 +101,19 @@ public class TransactionManagement
 
     public void DisplayExpensesSpecificMonthAndYear()
     {
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Wyświetlanie transakcji ===");
+        Console.WriteLine();
         Console.Write("Podaj rok: ");
         int year = int.Parse(Console.ReadLine());
         Console.Write("Podaj miesiąc (1-12): ");
         int month = int.Parse(Console.ReadLine());
+
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Wyświetlanie transakcji ===");
+        Console.WriteLine();
 
         var transactions = _fileManagement.ReadFromFile<List<Transaction>>(FileManagement.TransactionsFilePath) ?? [];
         decimal total = 0;
@@ -115,8 +122,7 @@ public class TransactionManagement
         {
             if (transaction.Date.Year == year && transaction.Date.Month == month)
             {
-                Console.Write($"[{transaction.Date.ToString("yyyy.MM.dd")}]");
-                Console.Write(" ");
+                Console.Write($"[{transaction.Date.ToString("yyyy.MM.dd")}] ");
 
                 if (transaction.Amount > 0)
                 {
@@ -133,7 +139,7 @@ public class TransactionManagement
                     amount += "0";
                 }
 
-                Console.WriteLine($"[{amount}]");
+                Console.Write($"[{amount}] ");
                 Console.ForegroundColor = ConsoleColor.DarkGray;
 
                 if (!string.IsNullOrEmpty(transaction.Note))
@@ -145,20 +151,49 @@ public class TransactionManagement
                 Console.ForegroundColor = ConsoleColor.White;
             }
         }
-        
+
+        Console.WriteLine();
         Console.WriteLine($"Bilans z {month}/{year} wynosi {total:C}");
+        Console.WriteLine();
+        Console.WriteLine(InfoMessage.PressAnyKey());
         Console.ReadKey();
     }
 
     public void SetMonthBudget()
     {
-        Console.WriteLine("Podaj budżet miesięczny:");
-        decimal budget = decimal.Parse(Console.ReadLine());
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Ustalanie budżetu ===");
+        Console.WriteLine();
+        Console.WriteLine("Twój aktualny budżet jest ustawiony na: ");
 
-        var config = _fileManagement.ReadFromFile<Dictionary<string, object>>(FileManagement.ConfigFilePath) ?? new Dictionary<string, object>();
-        config["MonthBudget"] = budget;
-        _fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
+        var config = _fileManagement.ReadFromFile<Config>(FileManagement.ConfigFilePath);
 
-        Console.WriteLine("Budżet miesięczny został ustawiony.");
+        Console.WriteLine($"Twój aktualny budżet wynosi: {config.MonthBudget:C}");
+        Console.WriteLine();
+        Console.Write("Podaj nowy budżet miesięczny: ");
+        int budget = int.Parse(Console.ReadLine());
+        Console.WriteLine("Czy na pewno chcesz ustawić nowy budżet?");
+        string choice = Console.ReadLine().ToLower();
+
+        if (choice == "tak")
+        {
+            config.MonthBudget = budget;
+            _fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
+            Console.WriteLine("Budżet miesięczny został ustawiony.");
+        }
+        else
+        {
+            Console.WriteLine("Budżet nie został zmieniony.");
+        }
+
+        //Console.WriteLine("Podaj nowy budżet miesięczny:");
+        //decimal budget = decimal.Parse(Console.ReadLine());
+
+        //var config = _fileManagement.ReadFromFile<Dictionary<string, object>>(FileManagement.ConfigFilePath) ?? new Dictionary<string, object>();
+        //config["MonthBudget"] = budget;
+        //_fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
+
+        //Console.WriteLine("Budżet miesięczny został ustawiony.");
     }
 }

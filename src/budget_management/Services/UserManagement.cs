@@ -11,6 +11,11 @@ public class UserManagement
 
     public void RegisterUser()
     {
+        Display.Logo(false);
+        Console.WriteLine();
+        Console.WriteLine("=== Rejestracja ===");
+        Console.WriteLine();
+
         string id = Guid.NewGuid().ToString().Substring(0, 6);
 
         while (LoadUsers().ContainsKey(id))
@@ -18,23 +23,55 @@ public class UserManagement
             id = Guid.NewGuid().ToString().Substring(0, 6);
         }
 
-
         Console.Write("Podaj nazwę wyświetlaną: ");
         string name = Console.ReadLine();
         Console.Write("Podaj nazwę, której chcesz używać do logowania: ");
         string nickname = Console.ReadLine();
 
+        while (nickname.Length < 5)
+        {
+            Message.Warning("Nazwa logowania musi mieć co najmniej 5 znaków.");
+
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write("\n");
+
+            Console.Write("Podaj dłuższą nazwę logowania: ");
+            nickname = Console.ReadLine();
+        }
+
         while (LoadUsers().ContainsKey(nickname))
         {
-            Console.WriteLine("Podana nazwa logowania jest już zajęta.");
+            Message.Warning("Podana nazwa logowania jest już zajęta.");
+
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write("\n");
+
             Console.Write("Podaj inną nazwę: ");
             nickname = Console.ReadLine();
         }
 
         Console.Write("Utwórz hasło: ");
         string password = Console.ReadLine();
-        Console.Write("Podaj dzień wypłaty: ");
-        int payday = int.Parse(Console.ReadLine());
+
+        while (password.Length < 5)
+        {
+            Message.Warning("Hasło musi mieć co najmniej 5 znaków.");
+
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write("\n");
+
+            Console.Write("Podaj dłuższe hasło: ");
+            password = Console.ReadLine();
+        }
+
+        //Console.Write("Podaj dzień wypłaty: ");
+        //int payday = int.Parse(Console.ReadLine());
         Console.Write("Podaj miesięczny budżet: ");
         decimal monthBudget = decimal.Parse(Console.ReadLine());
 
@@ -45,7 +82,7 @@ public class UserManagement
         {
             { "Currency", "PLN" },
             { "MonthBudget", monthBudget },
-            { "Payday", payday },
+            //{ "Payday", payday },
             { "Sounds", true }
         };
 
@@ -63,11 +100,16 @@ public class UserManagement
         SaveUsers(users);
 
         FileManagement.LoggedUserID = string.Empty;
-        Console.WriteLine("Rejestracja zakończona pomyślnie!");
+        Message.Info("Rejestracja zakończona pomyślnie!");
     }
 
     public Person LoginUser()
     {
+        Display.Logo(false);
+        Console.WriteLine();
+        Console.WriteLine("=== Logowanie ===");
+        Console.WriteLine();
+
         Console.Write("Podaj swój login: ");
         string nickname = Console.ReadLine();
         Console.Write("Podaj hasło: ");
@@ -94,11 +136,17 @@ public class UserManagement
     public void LogoutUser()
     {
         FileManagement.LoggedUserID = string.Empty;
-        Console.WriteLine("Wylogowano użytkownika");
+        Message.Info("Użytkownik został wylogowany");
+        Console.WriteLine();
     }
 
     public void ChangePassword()
     {
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Zmiana hasła ===");
+        Console.WriteLine();
+
         Console.Write("Podaj swoją nazwę logowania: ");
         string name = Console.ReadLine();
         Console.Write("Podaj obecne hasło: ");
@@ -133,17 +181,51 @@ public class UserManagement
         }
     }
 
+    public void ChangeName()
+    {
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Zmiana nazwy wyświetlanej ===");
+        Console.WriteLine();
+        Console.Write("Podaj swoją nazwę logowania: ");
+        string name = Console.ReadLine();
+        Console.Write("Podaj swoje hasło: ");
+        string password = Console.ReadLine();
+
+        var users = LoadUsers();
+
+        if (users.TryGetValue(name, out UserData userData) && userData.Password == password)
+        {
+            Console.Write("Podaj nową nazwę wyświetlaną: ");
+            string newName = Console.ReadLine();
+            userData.Person.Name = newName;
+            SaveUsers(users);
+            Console.WriteLine();
+            Message.Info("Nazwa wyświetlana została zmieniona.\nZmiana będzie widoczna po ponownym zalogowaniu.");
+        }
+        else
+        {
+            Message.Error(ErrorMessage.LoginFail());
+        }
+    }
+
     public void DeleteUser()
     {
         Display.Logo();
         Console.WriteLine();
         Message.Warning(WarningMessage.DeleteFiles());
-        Console.WriteLine();
+
+        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        Console.Write("\n");
+
         Console.Write("Wpisz TAK, aby potwierdzić, w przeciwnym razie operacja zostanie anulowana");
         Console.WriteLine();
         Console.Write("Potwierdzenie: ");
 
         string choice = Console.ReadLine();
+        Console.WriteLine();
 
         switch (choice)
         {
@@ -164,7 +246,7 @@ public class UserManagement
 
                     FileManagement.LoggedUserID = string.Empty;
 
-                    Console.WriteLine("Konto zostało usunięte.");
+                    Message.Info("Konto zostało usunięte.");
                 }
                 else
                 {
@@ -203,17 +285,17 @@ public class UserManagement
         public string Password { get; set; }
     }
 
-    public void SetPayday()
-    {
-        Console.Write("Podaj dzień wypłaty (1-31): ");
-        int payday = int.Parse(Console.ReadLine());
+    //public void SetPayday()
+    //{
+    //    Console.Write("Podaj dzień wypłaty (1-31): ");
+    //    int payday = int.Parse(Console.ReadLine());
 
-        var config = _fileManagement.ReadFromFile<Dictionary<string, object>>(FileManagement.ConfigFilePath) ?? new Dictionary<string, object>();
-        config["Payday"] = payday;
-        _fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
+    //    var config = _fileManagement.ReadFromFile<Dictionary<string, object>>(FileManagement.ConfigFilePath) ?? new Dictionary<string, object>();
+    //    config["Payday"] = payday;
+    //    _fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
 
-        Console.WriteLine("Dzień wypłaty został ustawiony.");
-    }
+    //    Console.WriteLine("Dzień wypłaty został ustawiony.");
+    //}
 
     public bool GetSoundsSetting()
     {
@@ -231,6 +313,10 @@ public class UserManagement
         var config = _fileManagement.ReadFromFile<Dictionary<string, object>>(FileManagement.ConfigFilePath) ?? new Dictionary<string, object>();
         bool sounds = GetSoundsSetting();
 
+        Display.Logo();
+        Console.WriteLine();
+        Console.WriteLine("=== Zmiana ustawień dźwięku ===");
+        Console.WriteLine();
         Console.Write("Dźwięki programu są obecnie ");
         if (sounds == true)
         {

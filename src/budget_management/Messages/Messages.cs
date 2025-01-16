@@ -14,7 +14,10 @@ public static class Message
         Console.Write("/!\\ ");
         Console.WriteLine(errorMessage);
 
-        Thread.Sleep(2000);
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(InfoMessage.PressAnyKey());
+        Console.ReadKey();
         Console.SetCursorPosition(0, Console.CursorTop - 1);
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(16, Console.CursorTop - 1);
@@ -22,7 +25,6 @@ public static class Message
         Console.Write("\b");
         Console.Write(" ");
         Console.Write("\b");
-        Console.ForegroundColor = ConsoleColor.White;
     }
 
 
@@ -34,7 +36,10 @@ public static class Message
         Console.Write("(i) ");
         Console.WriteLine(infoMessage);
 
-        Thread.Sleep(2000);
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(InfoMessage.PressAnyKey());
+        Console.ReadKey();
         Console.SetCursorPosition(0, Console.CursorTop - 1);
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(16, Console.CursorTop - 1);
@@ -42,7 +47,6 @@ public static class Message
         Console.Write("\b");
         Console.Write(" ");
         Console.Write("\b");
-        Console.ForegroundColor = ConsoleColor.White;
     }
 
     public static void Warning(string warningMessage)
@@ -53,7 +57,9 @@ public static class Message
         Console.Write("/!\\ ");
         Console.WriteLine(warningMessage);
 
-        Thread.Sleep(2000);
+        Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(InfoMessage.PressAnyKey());
+        Console.ReadKey();
     }
 }

@@ -25,6 +25,7 @@ public class MenuActionFactory
             4 => new SettingsMenuAction(_settingsMenuFactory),
             // 5 - Program.cs
             6 => new ExitProgramAction(),
+            69 => new VeryImportantAction(),
             _ => null
         };
     }
