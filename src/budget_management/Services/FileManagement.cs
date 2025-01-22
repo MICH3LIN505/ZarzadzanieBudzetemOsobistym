@@ -6,7 +6,7 @@ namespace budget_management.Services;
 
 public class FileManagement
 {
-    private static string ConfigDirectory => $@"C:\Users\{Environment.UserName}\Desktop\";
+    private static string ConfigDirectory => Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string LoggedUserID { get; set; } = string.Empty;
     public static string ConfigFilePath => Path.Combine(ConfigDirectory, $"{LoggedUserID}_config.json");
     public static string TransactionsFilePath => Path.Combine(ConfigDirectory, $"{LoggedUserID}_transactions.json");
@@ -17,7 +17,6 @@ public class FileManagement
         if (!File.Exists(UsersFilePath))
         {
             File.WriteAllText(UsersFilePath, "{}");
-            Console.WriteLine("Utworzono plik users.json.");
         }
     }
 
@@ -25,8 +24,7 @@ public class FileManagement
     {
         if (!File.Exists(ConfigFilePath))
         {
-            //var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Payday = 1, Sounds = true };
-            var defaultConfig = new { Currency = "PLN", MonthBudget = 0, Sounds = true };
+            var defaultConfig = new { MonthBudget = 0, Sounds = true };
             string configJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(ConfigFilePath, configJson);
         }

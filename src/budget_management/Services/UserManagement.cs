@@ -13,7 +13,7 @@ public class UserManagement
     {
         Display.Logo(false);
         Console.WriteLine();
-        Console.WriteLine("=== Rejestracja ===");
+        Console.WriteLine(UserMessage.RegisterHeader());
         Console.WriteLine();
 
         string id = Guid.NewGuid().ToString().Substring(0, 6);
@@ -23,66 +23,75 @@ public class UserManagement
             id = Guid.NewGuid().ToString().Substring(0, 6);
         }
 
-        Console.Write("Podaj nazwę wyświetlaną: ");
-        string name = Console.ReadLine();
-        Console.Write("Podaj nazwę, której chcesz używać do logowania: ");
-        string nickname = Console.ReadLine();
+        Console.Write(UserMessage.Name());
+        string name = Value.ReadString();
+
+        Console.Write(UserMessage.Nickname());
+        string nickname = Value.ReadString();
 
         while (nickname.Length < 5)
         {
-            Message.Warning("Nazwa logowania musi mieć co najmniej 5 znaków.");
+            Message.Warning(UserMessage.NicknameTooShort());
 
             Console.SetCursorPosition(0, Console.CursorTop - 1);
             Console.Write(new string(' ', Console.WindowWidth));
             Console.SetCursorPosition(0, Console.CursorTop - 1);
             Console.Write("\n");
 
-            Console.Write("Podaj dłuższą nazwę logowania: ");
-            nickname = Console.ReadLine();
+            Console.Write(UserMessage.LongerNickname());
+            nickname = Value.ReadString();
         }
 
         while (LoadUsers().ContainsKey(nickname))
         {
-            Message.Warning("Podana nazwa logowania jest już zajęta.");
+            Message.Warning(UserMessage.NicknameTaken());
 
             Console.SetCursorPosition(0, Console.CursorTop - 1);
             Console.Write(new string(' ', Console.WindowWidth));
             Console.SetCursorPosition(0, Console.CursorTop - 1);
             Console.Write("\n");
 
-            Console.Write("Podaj inną nazwę: ");
-            nickname = Console.ReadLine();
+            Console.Write(UserMessage.MakeAnotherNickname());
+            nickname = Value.ReadString();
         }
 
-        Console.Write("Utwórz hasło: ");
-        string password = Console.ReadLine();
+        string password = ".";
+        string passwordRepeat = ",";
 
-        while (password.Length < 5)
+        while (password != passwordRepeat)
         {
-            Message.Warning("Hasło musi mieć co najmniej 5 znaków.");
+            Console.Write(UserMessage.MakePassword());
+            password = Value.ReadString();
 
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
-            Console.Write("\n");
+            while (password.Length < 5)
+            {
+                Message.Warning(UserMessage.PasswordTooShort());
 
-            Console.Write("Podaj dłuższe hasło: ");
-            password = Console.ReadLine();
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.Write("\n");
+
+                Console.Write(UserMessage.LongerPassword());
+                password = Value.ReadString();
+            }
+
+            Console.Write(UserMessage.PasswordRepeat());
+            passwordRepeat = Value.ReadString();
+
+            if (password != passwordRepeat)
+                Message.Warning(UserMessage.PasswordsNotMatch());
         }
 
-        //Console.Write("Podaj dzień wypłaty: ");
-        //int payday = int.Parse(Console.ReadLine());
-        Console.Write("Podaj miesięczny budżet: ");
-        decimal monthBudget = decimal.Parse(Console.ReadLine());
+        Console.Write(TransactionMessage.SetNewBudget());
+        decimal monthBudget = Value.ReadDecimal();
 
         FileManagement.LoggedUserID = id;
         _fileManagement.CreatePersonalFiles();
 
         var config = new Dictionary<string, object>
         {
-            { "Currency", "PLN" },
             { "MonthBudget", monthBudget },
-            //{ "Payday", payday },
             { "Sounds", true }
         };
 
@@ -100,20 +109,21 @@ public class UserManagement
         SaveUsers(users);
 
         FileManagement.LoggedUserID = string.Empty;
-        Message.Info("Rejestracja zakończona pomyślnie!");
+        Message.Info(UserMessage.RegisterSuccess());
     }
 
     public Person LoginUser()
     {
         Display.Logo(false);
         Console.WriteLine();
-        Console.WriteLine("=== Logowanie ===");
+        Console.WriteLine(UserMessage.LoginHeader());
         Console.WriteLine();
 
-        Console.Write("Podaj swój login: ");
-        string nickname = Console.ReadLine();
-        Console.Write("Podaj hasło: ");
-        string password = Console.ReadLine();
+        Console.Write(UserMessage.LoginName());
+        string nickname = Value.ReadString();
+
+        Console.Write(UserMessage.Password());
+        string password = Value.ReadString();
 
         var users = LoadUsers();
 
@@ -136,7 +146,7 @@ public class UserManagement
     public void LogoutUser()
     {
         FileManagement.LoggedUserID = string.Empty;
-        Message.Info("Użytkownik został wylogowany");
+        Message.Info(InfoMessage.LogoutSuccesfull());
         Console.WriteLine();
     }
 
@@ -144,13 +154,14 @@ public class UserManagement
     {
         Display.Logo();
         Console.WriteLine();
-        Console.WriteLine("=== Zmiana hasła ===");
+        Console.WriteLine(UserMessage.ChangePasswordHeader());
         Console.WriteLine();
 
-        Console.Write("Podaj swoją nazwę logowania: ");
-        string name = Console.ReadLine();
-        Console.Write("Podaj obecne hasło: ");
-        string currentPassword = Console.ReadLine();
+        Console.Write(UserMessage.LoginName());
+        string name = Value.ReadString();
+
+        Console.Write(UserMessage.Password());
+        string currentPassword = Value.ReadString();
 
         var users = LoadUsers();
 
@@ -158,26 +169,41 @@ public class UserManagement
         {
             if (userData.Password == currentPassword)
             {
-                Console.Write("Podaj nowe hasło: ");
-                string newPassword = Console.ReadLine();
-                userData.Password = newPassword;
-                while (currentPassword == newPassword)
+                string newPassword = ".";
+                string passwordRepeat = ",";
+
+                do
                 {
-                    Message.Warning(WarningMessage.SamePassword());
-                    Console.Write("Podaj nowe hasło: ");
-                    newPassword = Console.ReadLine();
+                    Console.Write(UserMessage.SetNewPassword());
+                    newPassword = Value.ReadString();
+
+                    while (currentPassword == newPassword)
+                    {
+                        Message.Warning(WarningMessage.SamePassword());
+                        Console.Write(UserMessage.SetNewPassword());
+                        newPassword = Value.ReadString();
+                    }
+
+                    Console.Write(UserMessage.PasswordRepeat());
+                    passwordRepeat = Value.ReadString();
+
+                    if (newPassword != passwordRepeat)
+                        Message.Warning(UserMessage.PasswordsNotMatch());
                 }
+                while (newPassword != passwordRepeat);
+
+                userData.Password = newPassword;
                 SaveUsers(users);
-                Console.WriteLine("Hasło zostało zmienione.");
+                Message.Info(UserMessage.PasswordChanged());
             }
             else
             {
-                Console.WriteLine("Nieprawidłowe obecne hasło.");
+                Message.Error(UserMessage.LoginFail());
             }
         }
         else
         {
-            Console.WriteLine("Użytkownik nie istnieje.");
+            Console.WriteLine(UserMessage.LoginFail());
         }
     }
 
@@ -185,23 +211,26 @@ public class UserManagement
     {
         Display.Logo();
         Console.WriteLine();
-        Console.WriteLine("=== Zmiana nazwy wyświetlanej ===");
+        Console.WriteLine(UserMessage.ChangeNameHeader());
         Console.WriteLine();
-        Console.Write("Podaj swoją nazwę logowania: ");
-        string name = Console.ReadLine();
-        Console.Write("Podaj swoje hasło: ");
-        string password = Console.ReadLine();
+
+        Console.Write(UserMessage.LoginName());
+        string name = Value.ReadString();
+
+        Console.Write(UserMessage.Password());
+        string password = Value.ReadString();
 
         var users = LoadUsers();
 
         if (users.TryGetValue(name, out UserData userData) && userData.Password == password)
         {
-            Console.Write("Podaj nową nazwę wyświetlaną: ");
-            string newName = Console.ReadLine();
+            Console.Write(UserMessage.SetNewName());
+            string newName = Value.ReadString();
             userData.Person.Name = newName;
+            
             SaveUsers(users);
             Console.WriteLine();
-            Message.Info("Nazwa wyświetlana została zmieniona.\nZmiana będzie widoczna po ponownym zalogowaniu.");
+            Message.Info(UserMessage.NameChanged());
         }
         else
         {
@@ -214,26 +243,24 @@ public class UserManagement
         Display.Logo();
         Console.WriteLine();
         Message.Warning(WarningMessage.DeleteFiles());
-
-        Console.SetCursorPosition(0, Console.CursorTop - 1);
-        Console.Write(new string(' ', Console.WindowWidth));
-        Console.SetCursorPosition(0, Console.CursorTop - 1);
-        Console.Write("\n");
-
-        Console.Write("Wpisz TAK, aby potwierdzić, w przeciwnym razie operacja zostanie anulowana");
         Console.WriteLine();
-        Console.Write("Potwierdzenie: ");
 
-        string choice = Console.ReadLine();
+        Console.Write(InfoMessage.SayYesToConfirm());
+        Console.WriteLine();
+        Console.Write(InfoMessage.Confirmation());
+
+        string choice = Value.ReadString();
         Console.WriteLine();
 
         switch (choice)
         {
-            case "TAK":
-                Console.Write("Podaj swoją nazwę logowania: ");
-                string name = Console.ReadLine();
-                Console.Write("Podaj swoje hasło: ");
-                string password = Console.ReadLine();
+            case Decision.VeryAffirmative:
+
+                Console.Write(UserMessage.LoginName());
+                string name = Value.ReadString();
+
+                Console.Write(UserMessage.Password());
+                string password = Value.ReadString();
 
                 var users = LoadUsers();
 
@@ -246,18 +273,18 @@ public class UserManagement
 
                     FileManagement.LoggedUserID = string.Empty;
 
-                    Message.Info("Konto zostało usunięte.");
+                    Message.Info(UserMessage.UserDeleted());
                 }
                 else
                 {
-                    Console.WriteLine("Nieprawidłowe dane.");
-                    Message.Info("Nie usunięto konta.");
+                    Message.Error(UserMessage.LoginFail());
+                    Message.Info(UserMessage.UserNotDeleted());
                 }
 
                 break;
 
             default:
-                Message.Info("Nie usunięto konta.");
+                Message.Info(UserMessage.UserNotDeleted());
                 break;
         }
     }
@@ -285,18 +312,6 @@ public class UserManagement
         public string Password { get; set; }
     }
 
-    //public void SetPayday()
-    //{
-    //    Console.Write("Podaj dzień wypłaty (1-31): ");
-    //    int payday = int.Parse(Console.ReadLine());
-
-    //    var config = _fileManagement.ReadFromFile<Dictionary<string, object>>(FileManagement.ConfigFilePath) ?? new Dictionary<string, object>();
-    //    config["Payday"] = payday;
-    //    _fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
-
-    //    Console.WriteLine("Dzień wypłaty został ustawiony.");
-    //}
-
     public bool GetSoundsSetting()
     {
         if (!File.Exists(FileManagement.ConfigFilePath))
@@ -315,40 +330,42 @@ public class UserManagement
 
         Display.Logo();
         Console.WriteLine();
-        Console.WriteLine("=== Zmiana ustawień dźwięku ===");
+        Console.WriteLine(UserMessage.SoundsHeader());
         Console.WriteLine();
-        Console.Write("Dźwięki programu są obecnie ");
+        Console.Write(UserMessage.SoundsCurrently());
+
         if (sounds == true)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("włączone");
+            Console.WriteLine(UserMessage.Enabled());
             Console.ForegroundColor = ConsoleColor.White;
         }
         else
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("wyłączone");
+            Console.WriteLine(UserMessage.Disabled());
             Console.ForegroundColor = ConsoleColor.White;
         }
 
         Console.WriteLine();
-        Console.WriteLine("Czy chcesz zmienić to ustawienie? (tak/nie): ");
-        string choice = Console.ReadLine().ToLower();
+        Console.Write(UserMessage.WannaChange());
 
-        if (choice == "tak")
+        string choice = Value.ReadString().ToLower();
+
+        if (choice == Decision.Affirmative)
         {
             sounds = !sounds;
             config["Sounds"] = sounds;
             _fileManagement.SaveToFile(FileManagement.ConfigFilePath, config);
-            Console.WriteLine("Zmieniono ustawienie dźwięków.");
+            Message.Info(UserMessage.SoundSettingChanged());
         }
-        else if (choice == "nie")
+        else if (choice == Decision.Negative)
         {
-            Console.WriteLine("Nie zmieniono ustawienia dźwięków.");
+            Message.Info(UserMessage.SoundsSettingNotChanged());
         }
         else
         {
-            Message.Error(ErrorMessage.InvalidChoice());
+            Message.Error(ErrorMessage.InvalidValue());
         }
     }
 }

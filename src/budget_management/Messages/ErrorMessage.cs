@@ -2,7 +2,6 @@
 
 public static class ErrorMessage
 {
-    public static string InvalidChoice() => "Nieprawidłowy wybór";
-    public static string FileExists() => "Plik już istnieje";
+    public static string InvalidValue() => "Podano nieprawidłową wartość. Spróbuj ponownie";
     public static string LoginFail() => "Nieprawidłowa nazwa użytkownika lub hasło";
 }

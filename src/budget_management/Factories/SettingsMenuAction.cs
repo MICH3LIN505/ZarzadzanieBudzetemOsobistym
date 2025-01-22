@@ -1,7 +1,7 @@
 ﻿using budget_management.Messages;
+using budget_management.Services;
 namespace budget_management.Factories;
 
-//MENU USTAWIEŃ
 public class SettingsMenuAction : IMenuAction
 {
     private readonly SettingsMenuFactory _settingsMenuFactory;
@@ -16,11 +16,7 @@ public class SettingsMenuAction : IMenuAction
         Display.Logo();
         Display.Settings();
 
-        int settingsChoice;
-        while (!int.TryParse(Console.ReadLine(), out settingsChoice))
-        {
-            Message.Error(ErrorMessage.InvalidChoice());
-        }
+        int settingsChoice = Value.ReadInt();
 
         if (settingsChoice == 6) return;
 

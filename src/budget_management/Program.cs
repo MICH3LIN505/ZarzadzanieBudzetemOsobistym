@@ -32,7 +32,7 @@ internal class Program
 
                 Display.LoginPanel();
 
-                loginOption = int.Parse(Console.ReadLine());
+                loginOption = Value.ReadInt();
 
                 switch (loginOption)
                 {
@@ -46,7 +46,7 @@ internal class Program
                         fileManagement.ExitProcedure(false);
                         break;
                     default:
-                        Message.Error(ErrorMessage.InvalidChoice());
+                        Message.Error(ErrorMessage.InvalidValue());
                         break;
                 }
             }
@@ -65,12 +65,7 @@ internal class Program
 
                 Display.MainMenu();
 
-                int choice;
-
-                while (!int.TryParse(Console.ReadLine(), out choice))
-                {
-                    Message.Error(ErrorMessage.InvalidChoice());
-                }
+                int choice = Value.ReadInt();
 
                 var action = menuActionFactory.GetAction(choice);
                 action?.Execute();

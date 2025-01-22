@@ -27,25 +27,25 @@ public static class Display
     public static void LoginPanel()
     {
         Console.WriteLine();
-        Console.WriteLine("=== Panel logowania ===");
+        Console.WriteLine(DisplayMessage.LoginPanelHeader());
         Console.WriteLine();
-        Console.WriteLine("1. Logowanie");
-        Console.WriteLine("2. Rejestracja");
-        Console.WriteLine("3. Wyjście");
+        Console.WriteLine("1. " + DisplayMessage.Login());
+        Console.WriteLine("2. " + DisplayMessage.Register());
+        Console.WriteLine("3. " + DisplayMessage.Exit());
         Console.WriteLine();
-        Console.Write("Wybierz opcję: ");
+        Console.Write(DisplayMessage.ChooseOption());
     }
     public static void MainMenu()
     {
         Console.WriteLine();
-        Console.WriteLine("=== Menu główne ===");
+        Console.WriteLine(DisplayMessage.MainMenuHeader());
         Console.WriteLine();
-        Console.WriteLine("1. Dodaj transakcję");
-        Console.WriteLine("2. Oblicz średnią");
-        Console.WriteLine("3. Wyświetl transakcje");
-        Console.WriteLine("4. Ustawienia");
-        Console.WriteLine("5. Wyloguj się");
-        Console.WriteLine("6. Wyjście");
+        Console.WriteLine("1. " + DisplayMessage.AddTransaction());
+        Console.WriteLine("2. " + DisplayMessage.CalculateAverage());
+        Console.WriteLine("3. " + DisplayMessage.ShowTransactions());
+        Console.WriteLine("4. " + DisplayMessage.Settings());
+        Console.WriteLine("5. " + DisplayMessage.Logout());
+        Console.WriteLine("6. " + DisplayMessage.Exit());
         Console.WriteLine();
         Console.Write("Wybierz opcję: ");
     }
@@ -53,17 +53,17 @@ public static class Display
     public static void Settings()
     {
         Console.WriteLine();
-        Console.WriteLine("=== Ustawienia ===");
+        Console.WriteLine(DisplayMessage.SettingsHeader());
         Console.WriteLine();
-        Console.WriteLine("1. Ustal budżet miesięczny");
-        Console.WriteLine("2. Zmień nazwę wyświetlaną");
-        Console.WriteLine("3. Ustawienia dźwięku");
-        Console.WriteLine("4. Zmień hasło");
+        Console.WriteLine("1. " + DisplayMessage.SetMonthBudget());
+        Console.WriteLine("2. " + DisplayMessage.ChangeName());
+        Console.WriteLine("3. " + DisplayMessage.SoundsSettings());
+        Console.WriteLine("4. " + DisplayMessage.ChangePassword());
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("5. Usuń profil użytkownika");
+        Console.WriteLine("5. " + DisplayMessage.DeleteUser());
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("6. Powrót do menu głównego");
+        Console.WriteLine("6. " + DisplayMessage.BackToMenu());
         Console.WriteLine();
-        Console.Write("Wybierz opcję: ");
+        Console.Write(DisplayMessage.ChooseOption());
     }
 }
