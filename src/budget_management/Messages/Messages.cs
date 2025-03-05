@@ -20,7 +20,9 @@ public static class Message
         Console.ReadKey();
 
         Console.Write(new string(' ', Console.WindowWidth));
-        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        Console.SetCursorPosition(0, Console.CursorTop - 2);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, Console.CursorTop - 0);
     }
 
 

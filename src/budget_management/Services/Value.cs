@@ -34,6 +34,7 @@ namespace budget_management.Services
             while (!DateTime.TryParse(Console.ReadLine(), out value))
             {
                 Message.Error(ErrorMessage.InvalidValue());
+                Console.Write(TransactionMessage.AddDate());
             }
             return value;
         }

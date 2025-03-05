@@ -41,10 +41,28 @@ public class FileManagement
         File.WriteAllText(path, jsonData);
     }
 
-    public T? ReadFromFile<T>(string path)
+    public T? ReadFromFile<T>(string path, Func<T, bool>? predicate = null)
     {
+        if (!File.Exists(path))
+        {
+            return default;
+        }
+
         string jsonData = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<T>(jsonData);
+
+        T? data = JsonSerializer.Deserialize<T>(jsonData);
+
+        if (data == null || predicate == null)
+        {
+            return data;
+        }
+
+        if (data is IEnumerable<object> collection)
+        {
+            return (T?)(object)collection.Where(item => predicate((T)(object)item)).ToList();
+        }
+
+        return predicate(data) ? data : default;
     }
 
     public void ExitProcedure(bool LogoColor = true)
